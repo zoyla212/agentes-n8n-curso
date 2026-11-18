@@ -1,0 +1,262 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "4168eb6b-04ba-4506-9fa6-d96b357adc3a",
+      "name": "When chat message received",
+      "webhookId": "fee14bec-0caa-42ce-b5fc-72900c91333b"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Rol y Ámbito: Eres un Asistente de Calificación de Leads para el equipo comercial. No tienes autorización para ofrecer descuentos, modificar precios ni cerrar ventas.\nObjetivo: Recibir consultas de clientes potenciales en el chat, extraer su nombre, correo electrónico y necesidad comercial, y registrar los leads calificados.\nReglas de Uso de Herramientas: Cuando el usuario brinde su nombre, correo electrónico y consulta comercial, utiliza la herramienta conectada para registrar sus datos.\nProtocolo de Escalamiento: Si el usuario solicita una cotización personalizada o un reembolso, detén tu ciclo y responde: \"Transfiriendo tu caso a revisión humana\".",
+          "maxIterations": 8
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "92e9d398-5bde-4ba6-84b6-50e0c2d8f430",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        96,
+        208
+      ],
+      "id": "6bdfdd90-df14-4d82-8dd4-ff67a755b2d4",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "zoylaestrellareyespaco@gmail.com",
+        "subject": "Log Agente - Tarea completada",
+        "message": "=Tarea completada. Respuesta del agente: {{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        592,
+        0
+      ],
+      "id": "1169e408-031a-4560-8733-794d691edaec",
+      "name": "Send a message",
+      "webhookId": "df16d8f2-dcdd-4c71-b9cc-cb6cde36ce8f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "TKjQNb4ZGjCDPZbF",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1f638TvRTac6stNVL8O_4dlIP9sYo84-Jzp18a2lK5As",
+          "mode": "list",
+          "cachedResultName": "DatosFlujo",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1f638TvRTac6stNVL8O_4dlIP9sYo84-Jzp18a2lK5As/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 986816586,
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1f638TvRTac6stNVL8O_4dlIP9sYo84-Jzp18a2lK5As/edit#gid=986816586"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "correo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('correo', ``, 'string') }}",
+            "consulta": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('consulta', ``, 'string') }}",
+            "nombre": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('nombre', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "action",
+              "displayName": "action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "chatInput",
+              "displayName": "chatInput",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "toolCallId",
+              "displayName": "toolCallId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "nombre",
+              "displayName": "nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "correo",
+              "displayName": "correo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "consulta",
+              "displayName": "consulta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        384,
+        208
+      ],
+      "id": "0f36cea2-3a38-4fbc-8289-288b56788b26",
+      "name": "Append row in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "cjx7mdFJNteNt1Ja",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "f338949a-4b91-4996-8118-72a7875a6bfb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "feefd968e6d40796a47198f3f31879285aa4e8f5a1bf8029735339fa9bb78e73"
+  },
+  "nodeGroups": [],
+  "id": "EksS0wY5WnPOU6TF",
+  "tags": []
+}
