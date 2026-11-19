@@ -1,0 +1,450 @@
+{
+  "name": "Manager_Modulo2",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "73f0d580-a9f5-4778-8797-aadc276d7318",
+      "name": "When chat message received",
+      "webhookId": "acfaf5b9-8cf0-4b2f-a43c-627f2cb3fec5"
+    },
+    {
+      "parameters": {
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Rol: Eres un Agente Router de Triaje. Tu única función es analizar el mensaje del usuario, clasificar su intención dentro de una taxonomía cerrada y extraer los datos disponibles. Tienes estrictamente prohibido responder consultas, solucionar problemas o inventar categorías nuevas.\n\nTaxonomía cerrada (elige SOLO una opción exacta para el campo intencion):\n\nVENTAS: cuando el usuario muestra interés comercial, pide información de servicios o deja datos de contacto como lead.\n\nSOPORTE: cuando el usuario reporta un problema técnico, error o duda de funcionamiento.\n\nESCALAR_HUMANO: cuando el usuario solicita reembolsos, cotizaciones personalizadas, reclamos graves, habla con frustración o el mensaje es ambiguo y no encaja claramente en las anteriores.\n\nExtracción de datos:\nExtrae nombre, correo y consulta del mensaje. Si algún dato no fue mencionado por el usuario, devuelve \"\" (texto vacío) sin inventar información.",
+          "maxIterations": 8
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "8727e201-85ec-492a-83f6-f184cc56a4b1",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        96,
+        208
+      ],
+      "id": "0226da9d-e8b1-49e2-8d45-7b3b72a7d776",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "zoylaestrellareyespaco@gmail.com",
+        "subject": "Log Agente - Tarea completada",
+        "message": "=Log de Trazabilidad - Manager Módulo 2\nWorker ejecutado: {{ $json.worker || 'ESCALADO_O_ERROR' }}\nEstado: {{ $json.status || 'revisión_humana' }}\nResultado: {{ JSON.stringify($json.data || $json) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1520,
+        32
+      ],
+      "id": "0434b625-b378-4276-b38d-005cd547a247",
+      "name": "Send a message",
+      "webhookId": "cd444593-5361-433b-b1bb-e42b793a09f9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "TKjQNb4ZGjCDPZbF",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"intencion\": \"VENTAS\",\n  \"nombre\": \"Carlos Pérez\",\n  \"correo\": \"carlos@ejemplo.com\",\n  \"consulta\": \"Quiero información sobre servicios de automatización\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        384,
+        208
+      ],
+      "id": "8c949103-cfdf-49d6-a1d0-c347dad8d6d5",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ea0dbf32-ffec-426e-ac3c-785970fb8d67",
+              "name": "intencion",
+              "value": "={{ $json.output.intencion }}",
+              "type": "string"
+            },
+            {
+              "id": "99aa6946-b9e9-409b-91bc-4f600bea98a1",
+              "name": "nombre",
+              "value": "={{ $json.output.nombre }}",
+              "type": "string"
+            },
+            {
+              "id": "6147ed82-bedf-4608-b732-adfb25a8e429",
+              "name": "correo",
+              "value": "={{ $json.output.correo }}",
+              "type": "string"
+            },
+            {
+              "id": "95076dce-f76e-4c6c-a00b-1851725d5e1c",
+              "name": "consulta",
+              "value": "={{ $json.output.consulta }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        592,
+        0
+      ],
+      "id": "4cb2ad01-c352-4d5f-b71a-c287fd6459d3",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 4
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.intencion }}",
+                    "rightValue": "VENTAS",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "6d3c341a-a1c3-4724-86b2-a460c26ce2fb"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 4
+                },
+                "conditions": [
+                  {
+                    "id": "2c5c57aa-4568-44ef-8afe-82addbcc8e7b",
+                    "leftValue": "={{ $json.intencion }}",
+                    "rightValue": "SOPORTE",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.5,
+      "position": [
+        816,
+        0
+      ],
+      "id": "9e98a71e-211f-476d-8522-d84461cd6127",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "IRcv5rS3Zdt4V6E2",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/IRcv5rS3Zdt4V6E2",
+          "cachedResultName": "Worker_Registrar_Lead"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "nombre": "={{ $json.nombre }}",
+            "correo": "={{ $json.correo }}",
+            "consulta": "={{ $json.consulta }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "nombre",
+              "displayName": "nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "correo",
+              "displayName": "correo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "consulta",
+              "displayName": "consulta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.4,
+      "position": [
+        1168,
+        -144
+      ],
+      "id": "9b29cfcf-6dea-4206-af04-920952242df5",
+      "name": "Call 'Worker_Registrar_Lead'",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "KKK6IsCJVxUqMZqf",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/KKK6IsCJVxUqMZqf",
+          "cachedResultName": "Worker_Soporte_Respuesta"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "usuario": "={{ $json.nombre }}",
+            "consulta": "={{ $json.consulta }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "usuario",
+              "displayName": "usuario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "consulta",
+              "displayName": "consulta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.4,
+      "position": [
+        1152,
+        176
+      ],
+      "id": "5bfb06a5-cc55-4600-b80a-54b85b90faa6",
+      "name": "Call 'Worker_Soporte_Respuesta'",
+      "onError": "continueErrorOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Call 'Worker_Registrar_Lead'",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call 'Worker_Soporte_Respuesta'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Worker_Registrar_Lead'": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Worker_Soporte_Respuesta'": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "f7d04ed6-9197-445a-8945-4a21ceb5178a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "feefd968e6d40796a47198f3f31879285aa4e8f5a1bf8029735339fa9bb78e73"
+  },
+  "nodeGroups": [],
+  "id": "094JYH6EoAW8aahj",
+  "tags": []
+}
